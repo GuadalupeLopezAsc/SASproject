@@ -1,0 +1,70 @@
+PROC IMPORT DATAFILE="/home/u63320024/EPG194/Data Base1/Calendar.xlsx"
+		    OUT=WORK.CALENDAR
+		    DBMS=XLSX
+		    REPLACE;
+RUN;
+PROC PRINT DATA=WORK.CALENDAR; RUN;
+
+/* Tabla Listings  */
+PROC IMPORT DATAFILE="/home/u63320024/EPG194/Data Base1/Listings.xlsx"
+		    OUT=WORK.LISTINGS
+		    DBMS=XLSX
+		    REPLACE;
+RUN;
+PROC PRINT DATA=WORK.LISTINGS; RUN;
+
+/* Tabla Reviews */
+PROC IMPORT DATAFILE="/home/u63320024/EPG194/Data Base1/Reviews.xlsx"
+		    OUT=WORK.REVIEWS
+		    DBMS=XLSX
+		    REPLACE;
+RUN;
+PROC PRINT DATA=WORK.REVIEWS; RUN;
+
+/*Creamos tabla PRICE, y unimos las tablas REVIEW y LISTINGS */
+
+Proc sql;
+		Create table Price as
+		select lst.review_scores_location, rvw.reviewer_name, lst.price
+		from WORK.REVIEWS rvw
+		LEFT JOIN LISTINGS lst
+		on rvw.airbnb_id=lst.airbnb_id;
+		quit;
+
+proc sql;
+		select review_scores_location, reviewer_name, price
+		from PRICE
+		where review_scores_location=(SELECT max(review_scores_location) FROM PRICE);
+quit;
+
+/*Consultas a las tablas*/
+
+proc sql;
+		select review_scores_location, reviewer_name, price
+		from PRICE
+		where reviewer_name like '%S%' ;
+quit;
+
+proc sql;
+		select review_scores_location, reviewer_name, price
+		from PRICE
+		where price>300 ;
+quit;
+
+proc sql;
+		select review_scores_location, reviewer_name, price
+		from PRICE
+		where price<50 ;
+quit;
+
+proc sql;
+		select review_scores_location, reviewer_name, price
+		from PRICE
+		where price=40 ;
+quit;
+
+proc sql;
+		select review_scores_location, reviewer_name, price
+		from PRICE
+		where review_scores_location =7 ;
+quit;
