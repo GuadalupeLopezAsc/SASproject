@@ -1,0 +1,90 @@
+/*TAREA 2: SQLite y SAS */
+/*Equipo 3, Integrantes: */
+/*López Ascencio Guadalupe */
+/*Cerón González Jessica Raquel */
+/*Vargas González Axel Uriel */
+/*Flores Portillo Luis Anthony */
+/*Rosales Maldonado Joarib */
+/*Salazar Medina Julio Edwin */
+
+/**1. Primero importamos las tablas que usamos en Google Colab
+
+
+/* Tabla Calendar  */
+PROC IMPORT DATAFILE="/home/u63530308/sasuser.v94/SQL/Calendar.xlsx" /* importamos archivo a SAS */
+		    OUT=WORK.CALENDAR  
+		    DBMS=XLSX  
+		    REPLACE;
+RUN;
+PROC PRINT DATA=WORK.CALENDAR; RUN; /imprimimos nuestras tablas/
+
+
+/* Tabla Listings  */
+PROC IMPORT DATAFILE="/home/u63530308/sasuser.v94/SQL/Listings (1).xlsx"
+		    OUT=WORK.LISTINGS
+		    DBMS=XLSX
+		    REPLACE;
+RUN;
+PROC PRINT DATA=WORK.LISTINGS; RUN;
+
+/* Tabla Reviews */
+PROC IMPORT DATAFILE="/home/u63530308/sasuser.v94/SQL/Reviews (1).xlsx"
+		    OUT=WORK.REVIEWS
+		    DBMS=XLSX
+		    REPLACE;
+RUN;
+PROC PRINT DATA=WORK.REVIEWS; RUN;
+
+/*Creamos tabla PRICE, y unimos las tablas REVIEW y LISTINGS */
+
+Proc sql;
+		Create table Price as  
+		select lst.review_scores_location, rvw.reviewer_name, lst.price /Seleccionamos las columnas que tendrá nuestra tabla/
+		from WORK.REVIEWS rvw  /*Tabla A */
+		LEFT JOIN LISTINGS lst   /Unión a Tabla B/
+		on rvw.airbnb_id=lst.airbnb_id;  /Columnas por las cuales se unirán/
+		quit;
+
+proc sql;
+		select review_scores_location, reviewer_name, price
+		from PRICE
+		where review_scores_location=(SELECT max(review_scores_location) FROM PRICE);
+quit;
+
+/*Consultas a las tablas*/
+
+/¿De los usuarios, quiénes de ellos empieza su nombre con "S"?/
+proc sql;
+		select review_scores_location, reviewer_name, price /Seleccionamos columnas/
+		from PRICE  /*A cuál tabla consultaremos */
+		where reviewer_name like '%S%' ;  /Condición a consultar/
+quit;
+
+/¿Quiénes pagaron más de 300?/
+proc sql;
+		select review_scores_location, reviewer_name, price
+		from PRICE
+		where price>300 ;
+quit;
+
+/¿Quiénes pagaron menos de 50?/
+proc sql;
+		select review_scores_location, reviewer_name, price
+		from PRICE
+		where price<50 ;
+quit;
+
+/¿Quiénes pagaron 40?/
+proc sql;
+		select review_scores_location, reviewer_name, price
+		from PRICE
+		where price=40 ;
+quit;
+
+/¿Quiénes dieron la calificación más baja (7)?/
+
+proc sql;
+		select review_scores_location, reviewer_name, price
+		from PRICE
+		where review_scores_location = 7 ;
+quit;
